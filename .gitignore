@@ -1,0 +1,6 @@
+# 절대 올리면 안 되는 것들
+.env.local
+.env
+node_modules
+dist
+.DS_Store

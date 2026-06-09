@@ -638,7 +638,7 @@ window.addEventListener('scroll', () => {
 })
 
 // ─── 공아요 체험 기능 ───────────────────────────────
-const API = 'https://api.anthropic.com/v1/messages'
+const API = '/api/ai'
 let tryGrade = '', trySubj = '', tryQuestions = [], tryCurrentQ = 0, tryAnswers = []
 
 function selectGrade(btn, grade) {
@@ -722,16 +722,17 @@ async function startTry() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
         max_tokens: 2000,
         messages: [{ role: 'user', content: prompt }]
       })
     })
+    if (!res.ok) throw new Error('서버 오류 ' + res.status)
     const data = await res.json()
     const raw = data.content?.map(b => b.text || '').join('') || ''
     const jsonMatch = raw.match(/\{[\s\S]*\}/)
     if (!jsonMatch) throw new Error('JSON 파싱 실패')
     const parsed = JSON.parse(jsonMatch[0])
+    if (!parsed.questions?.length) throw new Error('문제 데이터 없음')
     tryQuestions = parsed.questions
     tryCurrentQ = 0
     tryAnswers = []
@@ -741,7 +742,14 @@ async function startTry() {
     document.getElementById('try-subj-label').textContent = trySubj
     renderTryQ()
   } catch(e) {
-    document.getElementById('try-loading').innerHTML = '<div style="color:var(--red);font-size:14px;text-align:center;padding:20px;">문제 생성 중 오류가 발생했습니다.<br><br><button onclick="resetTry()" style="background:var(--p);color:#fff;border:none;border-radius:8px;padding:10px 20px;cursor:pointer;font-family:var(--font);">다시 시도</button></div>'
+    console.error('문제 생성 오류:', e)
+    document.getElementById('try-loading').innerHTML = `
+      <div style="text-align:center;padding:20px;">
+        <div style="font-size:32px;margin-bottom:12px;">⚠️</div>
+        <div style="font-size:14px;color:var(--text2);margin-bottom:6px;">문제 생성 중 오류가 발생했습니다</div>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:16px;">${e.message}</div>
+        <button onclick="resetTry()" style="background:var(--p);color:#fff;border:none;border-radius:8px;padding:10px 20px;cursor:pointer;font-family:var(--font);font-size:14px;">다시 시도</button>
+      </div>`
   }
 }
 
@@ -870,11 +878,11 @@ async function showTryResult() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
         max_tokens: 600,
         messages: [{ role: 'user', content: analysisPrompt }]
       })
     })
+    if (!res.ok) throw new Error('서버 오류')
     const data = await res.json()
     const text = data.content?.map(b => b.text || '').join('') || '분석 결과를 가져오지 못했습니다.'
     document.getElementById('res-analysis-loading').style.display = 'none'

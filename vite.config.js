@@ -10,3 +10,14 @@ export default defineConfig({
     outDir: 'dist', // Vercel이 찾고 있는 이름과 일치시키기
   }
 })
+export default defineConfig({
+  plugins: [react()],
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3001', // 백엔드 서버 주소  
+        changeOrigin: true, 
+      }
+    }
+  }
+})

@@ -1,6 +1,5 @@
-# 절대 올리면 안 되는 것들
-.env.local
+node_modules/
 .env
-node_modules
-dist
-.DS_Storeapi/ai.js
+.env.local
+api/
+dist/

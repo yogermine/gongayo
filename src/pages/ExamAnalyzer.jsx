@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-const ANTHROPIC_API = 'https://api.anthropic.com/v1/messages'
+const ANTHROPIC_API = '/api/claude'
 
 function Spinner() {
   return <span style={{ display: 'inline-block', width: 16, height: 16, border: '2px solid rgba(255,255,255,0.3)', borderTopColor: 'white', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />

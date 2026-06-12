@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { supabase } from '../lib/supabase'
 const ANTHROPIC_API = '/api/claude'
 console.log('🔍 SUPABASE URL:', import.meta.env.VITE_SUPABASE_URL)
- console.log('🔍 ENV:', import.meta.env.VITE_SUPABASE_URL, import.meta.env.VITE_SUPABASE_ANON_KEY?.slice(0,10))
+
 function Spinner() {
   return <span style={{ display: 'inline-block', width: 16, height: 16, border: '2px solid rgba(255,255,255,0.3)', borderTopColor: 'white', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
 }
@@ -39,7 +39,11 @@ export default function ExamAnalyzer({ data, setData }) {
 
   const grade = async () => {
     //supabase시험 저장
+     console.log('🔍 ENV:', import.meta.env.VITE_SUPABASE_URL, import.meta.env.VITE_SUPABASE_ANON_KEY?.slice(0,10))
     try {
+
+
+      
       // 시험 저장
       const { data: examRow, error: examErr } = await supabase
         .from('exams')

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-
+import { supabase } from '../lib/supabase'
 const ANTHROPIC_API = '/api/claude'
 
 function Spinner() {
@@ -37,6 +37,43 @@ export default function ExamAnalyzer({ data, setData }) {
   const normalize = s => s.trim().toLowerCase().replace(/\s+/g, '').replace(/[①②③④⑤]/g, c => ['①','②','③','④','⑤'].indexOf(c) + 1 + '')
 
   const grade = async () => {
+    //supabase시험 저장
+    try {
+      // 시험 저장
+      const { data: examRow, error: examErr } = await supabase
+        .from('exams')
+        .insert({ exam_name: examName, subject, grade: data.grade || '' })
+        .select()
+        .single()
+
+      if (examErr) throw examErr
+
+      // 문제 저장
+      const qRows = questions.map(q => ({
+        exam_id: examRow.id,
+        question_num: q.num,
+        content: q.content,
+        answer: q.answer,
+        points: Number(q.pts || 1)
+      }))
+      await supabase.from('exam_questions').insert(qRows)
+
+      // 학생 결과 저장
+      const sRows = analysisResults.map(s => ({
+        exam_id: examRow.id,
+        student_name: s.name,
+        answers: s.answers,
+        score: s.score,
+        total_points: questions.reduce((sum, q) => sum + Number(q.pts || 1), 0),
+        ai_feedback: s.feedback
+      }))
+      await supabase.from('student_results').insert(sRows)
+
+      console.log('✅ Supabase 저장 완료:', examRow.id)
+    } catch (saveErr) {
+      console.error('Supabase 저장 실패:', saveErr)
+    }
+    // ── 저장 끝 ──
     setLoading(true)
     const totalPts = questions.reduce((s, q) => s + Number(q.pts || 1), 0)
 

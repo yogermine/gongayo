@@ -40,6 +40,10 @@ export default function ExamAnalyzer({ data, setData }) {
   const grade = async () => {
     //supabase시험 저장
      console.log('🔍 ENV:', import.meta.env.VITE_SUPABASE_URL, import.meta.env.VITE_SUPABASE_ANON_KEY?.slice(0,10))
+if (!supabase) {
+      console.error('❌ Supabase 연결 안됨 - 환경변수 확인 필요')
+    } else {
+
     try {
 
 
@@ -77,6 +81,11 @@ export default function ExamAnalyzer({ data, setData }) {
       console.log('✅ Supabase 저장 완료:', examRow.id)
     } catch (saveErr) {
       console.error('Supabase 저장 실패:', saveErr)
+    }
+    
+          } catch (saveErr) {
+        console.error('Supabase 저장 실패:', saveErr)
+      }
     }
     // ── 저장 끝 ──
     setLoading(true)
